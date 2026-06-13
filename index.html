@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CIQUAL API — Wikimind</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#000;--bg2:#0a0a0a;--bg3:#141414;--bg4:#1e1e1e;
+  --border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.2);
+  --text:#fff;--text2:#a0a0a0;--text3:#606060;
+  --primary:#4d8fff;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;
+}
+html,body{min-height:100vh;background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;font-size:15px}
+
+/* ─── TOPBAR ─── */
+#topbar{
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;height:52px;
+  background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+#topbar-logo{font-size:.9rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--text)}
+#topbar-logo span{color:var(--primary)}
+#topbar-right{display:flex;align-items:center;gap:10px}
+#auth-btn{
+  padding:6px 14px;border-radius:8px;border:1px solid var(--border2);
+  background:var(--bg3);color:var(--text2);cursor:pointer;
+  font-family:'Geist',sans-serif;font-size:.83rem;font-weight:500;
+  transition:all .15s
+}
+#auth-btn:hover{background:var(--bg4);color:var(--text);border-color:rgba(255,255,255,.35)}
+#user-badge{display:none;align-items:center;gap:8px}
+#user-avatar{
+  width:30px;height:30px;border-radius:8px;
+  background:var(--bg3);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.8rem;font-weight:700;color:var(--text2)
+}
+#user-name-display{font-size:.83rem;color:var(--text2);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#logout-btn{
+  width:28px;height:28px;border-radius:7px;border:none;
+  background:transparent;color:var(--text3);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .12s
+}
+#logout-btn:hover{background:var(--bg3);color:var(--red)}
+
+/* ─── NAV TABS ─── */
+#nav{
+  display:flex;align-items:center;gap:2px;
+  padding:0 24px;height:44px;
+  border-bottom:1px solid var(--border);
+  background:var(--bg2);overflow-x:auto;
+}
+.nav-tab{
+  padding:6px 14px;border-radius:7px;border:none;
+  background:transparent;color:var(--text3);cursor:pointer;
+  font-family:'Geist',sans-serif;font-size:.84rem;font-weight:500;
+  transition:all .12s;white-space:nowrap
+}
+.nav-tab:hover{background:var(--bg3);color:var(--text2)}
+.nav-tab.active{background:var(--bg4);color:var(--text)}
+
+/* ─── MAIN ─── */
+#main{max-width:900px;margin:0 auto;padding:40px 24px 80px}
+.section{display:none}.section.active{display:block}
+
+/* ─── HERO ─── */
+#hero{text-align:center;padding:60px 0 48px}
+#hero h1{font-size:2.4rem;font-weight:800;line-height:1.15;margin-bottom:12px}
+#hero h1 span{color:var(--primary)}
+#hero p{color:var(--text2);font-size:1rem;max-width:500px;margin:0 auto 28px;line-height:1.65}
+.badge-row{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:32px}
+.badge{
+  padding:4px 12px;border-radius:99px;
+  background:rgba(77,143,255,.1);border:1px solid rgba(77,143,255,.25);
+  color:#7ab3ff;font-size:.78rem;font-weight:600
+}
+.badge.green{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.25);color:#4ade80}
+.badge.yellow{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.25);color:#fbbf24}
+.hero-cta{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.btn-primary{
+  padding:10px 20px;border-radius:9px;border:none;
+  background:var(--primary);color:#fff;cursor:pointer;
+  font-family:'Geist',sans-serif;font-size:.88rem;font-weight:600;
+  transition:all .15s
+}
+.btn-primary:hover{background:#3d7fef;transform:translateY(-1px)}
+.btn-secondary{
+  padding:10px 20px;border-radius:9px;
+  border:1px solid var(--border2);background:var(--bg3);
+  color:var(--text2);cursor:pointer;
+  font-family:'Geist',sans-serif;font-size:.88rem;font-weight:500;
+  transition:all .15s
+}
+.btn-secondary:hover{background:var(--bg4);color:var(--text)}
+
+/* ─── CARDS ─── */
+.card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:12px;padding:24px;margin-bottom:16px
+}
+.card-title{font-size:.95rem;font-weight:700;margin-bottom:4px;color:var(--text)}
+.card-desc{font-size:.83rem;color:var(--text2);line-height:1.5;margin-bottom:16px}
+.card h3{font-size:.85rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px}
+
+/* ─── DASHBOARD ─── */
+#section-dashboard .login-wall{
+  text-align:center;padding:64px 24px;color:var(--text2)
+}
+#section-dashboard .login-wall p{margin-bottom:20px;font-size:.95rem}
+
+.api-key-item{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 16px;border-radius:10px;
+  background:var(--bg3);border:1px solid var(--border);margin-bottom:10px
+}
+.api-key-info{flex:1;min-width:0}
+.api-key-name{font-size:.88rem;font-weight:600;color:var(--text);margin-bottom:2px}
+.api-key-meta{font-size:.78rem;color:var(--text3)}
+.api-key-value{
+  font-family:'Geist Mono',monospace;font-size:.82rem;
+  color:var(--text2);background:var(--bg4);
+  padding:5px 10px;border-radius:6px;border:1px solid var(--border)
+}
+.api-key-actions{display:flex;gap:6px}
+.icon-btn{
+  width:30px;height:30px;border-radius:7px;border:none;
+  background:transparent;color:var(--text3);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .12s
+}
+.icon-btn:hover{background:var(--bg4);color:var(--text)}
+.icon-btn.danger:hover{background:rgba(239,68,68,.1);color:var(--red)}
+
+.no-keys{
+  text-align:center;padding:40px;color:var(--text3);
+  font-size:.88rem;border:2px dashed var(--border);border-radius:10px
+}
+
+/* ─── CREATE KEY FORM ─── */
+.form-row{margin-bottom:14px}
+.form-label{font-size:.82rem;font-weight:600;color:var(--text2);display:block;margin-bottom:6px}
+.form-input{
+  width:100%;padding:9px 12px;border-radius:8px;
+  background:var(--bg3);border:1px solid var(--border);
+  color:var(--text);font-family:'Geist',sans-serif;font-size:.88rem;
+  outline:none;transition:border-color .15s
+}
+.form-input:focus{border-color:var(--primary)}
+.form-input::placeholder{color:var(--text3)}
+select.form-input{cursor:pointer}
+
+/* ─── CAPTCHA ─── */
+#captcha-area{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;padding:20px;margin:16px 0
+}
+#captcha-question{font-size:.92rem;color:var(--text);margin-bottom:14px;font-weight:500}
+.captcha-options{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.captcha-opt{
+  padding:10px 14px;border-radius:8px;
+  border:1px solid var(--border);background:var(--bg4);
+  color:var(--text2);cursor:pointer;font-family:'Geist',sans-serif;
+  font-size:.85rem;font-weight:500;transition:all .12s;text-align:center
+}
+.captcha-opt:hover{border-color:var(--primary);color:var(--text)}
+.captcha-opt.selected{border-color:var(--primary);background:rgba(77,143,255,.1);color:var(--text)}
+.captcha-opt.correct{border-color:var(--green);background:rgba(34,197,94,.1);color:#4ade80}
+.captcha-opt.wrong{border-color:var(--red);background:rgba(239,68,68,.1);color:#f87171}
+
+/* ─── KEY RESULT ─── */
+#key-result{
+  display:none;background:rgba(34,197,94,.05);
+  border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:20px;text-align:center
+}
+#key-result h4{color:#4ade80;margin-bottom:12px;font-size:.95rem}
+#key-result-value{
+  font-family:'Geist Mono',monospace;font-size:1.1rem;
+  color:var(--text);background:var(--bg3);
+  padding:10px 16px;border-radius:8px;border:1px solid var(--border);
+  letter-spacing:.05em;display:block;margin-bottom:12px
+}
+#key-expiry-note{font-size:.8rem;color:var(--text3);margin-bottom:14px}
+
+/* ─── PLAYGROUND ─── */
+.playground-row{display:grid;grid-template-columns:1fr 2fr;gap:16px;margin-bottom:20px}
+@media(max-width:640px){.playground-row{grid-template-columns:1fr}}
+.endpoint-list{display:flex;flex-direction:column;gap:4px}
+.endpoint-item{
+  padding:8px 12px;border-radius:8px;border:1px solid var(--border);
+  background:var(--bg3);cursor:pointer;transition:all .12s;
+}
+.endpoint-item:hover{border-color:var(--border2)}
+.endpoint-item.active{border-color:var(--primary);background:rgba(77,143,255,.08)}
+.endpoint-method{
+  font-size:.72rem;font-weight:700;color:var(--green);
+  font-family:'Geist Mono',monospace;margin-bottom:2px
+}
+.endpoint-path{font-size:.82rem;color:var(--text2);font-family:'Geist Mono',monospace}
+
+.request-panel{display:flex;flex-direction:column;gap:12px}
+.param-row{display:flex;align-items:center;gap:10px}
+.param-label{font-size:.8rem;color:var(--text3);min-width:80px;font-family:'Geist Mono',monospace}
+.param-input{
+  flex:1;padding:7px 10px;border-radius:7px;
+  background:var(--bg3);border:1px solid var(--border);
+  color:var(--text);font-family:'Geist Mono',monospace;font-size:.82rem;
+  outline:none;transition:border-color .15s
+}
+.param-input:focus{border-color:var(--primary)}
+
+#run-btn{
+  padding:9px 20px;border-radius:8px;border:none;
+  background:var(--primary);color:#fff;cursor:pointer;
+  font-family:'Geist',sans-serif;font-size:.85rem;font-weight:600;
+  transition:all .15s;align-self:flex-start
+}
+#run-btn:hover{background:#3d7fef}
+#run-btn:disabled{background:var(--bg4);color:var(--text3);cursor:not-allowed}
+
+#response-area{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:10px;padding:16px;
+  font-family:'Geist Mono',monospace;font-size:.8rem;
+  color:var(--text2);min-height:200px;max-height:440px;
+  overflow-y:auto;white-space:pre-wrap;word-break:break-all;
+  line-height:1.6
+}
+#response-area::-webkit-scrollbar{width:4px}
+#response-area::-webkit-scrollbar-thumb{background:#222;border-radius:2px}
+.response-meta{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.status-badge{
+  padding:2px 8px;border-radius:4px;
+  font-size:.75rem;font-weight:700;font-family:'Geist Mono',monospace
+}
+.status-200{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.25)}
+.status-err{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.25)}
+.timing{font-size:.75rem;color:var(--text3)}
+
+/* ─── DOCS ─── */
+.doc-section{margin-bottom:40px}
+.doc-section h2{
+  font-size:1.1rem;font-weight:700;margin-bottom:16px;
+  padding-bottom:10px;border-bottom:1px solid var(--border)
+}
+.doc-section h3{font-size:.9rem;font-weight:700;color:var(--text2);margin:20px 0 10px}
+.doc-section p{font-size:.88rem;color:var(--text2);line-height:1.7;margin-bottom:10px}
+.doc-section ul{list-style:none;padding:0}
+.doc-section ul li{
+  font-size:.88rem;color:var(--text2);line-height:1.6;
+  padding:4px 0;padding-left:16px;position:relative
+}
+.doc-section ul li::before{content:"→";position:absolute;left:0;color:var(--text3)}
+
+.code-block{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:10px;overflow:hidden;margin:12px 0
+}
+.code-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 14px;background:var(--bg3);border-bottom:1px solid var(--border)
+}
+.code-lang{font-size:.75rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;font-family:'Geist Mono',monospace}
+.copy-code{
+  padding:3px 10px;border-radius:5px;border:1px solid var(--border);
+  background:transparent;color:var(--text3);cursor:pointer;
+  font-family:'Geist',sans-serif;font-size:.75rem;transition:all .12s
+}
+.copy-code:hover{background:var(--bg4);color:var(--text2)}
+.code-block pre{padding:14px;font-family:'Geist Mono',monospace;font-size:.8rem;color:#c9d1d9;line-height:1.7;overflow-x:auto}
+.code-block pre::-webkit-scrollbar{height:3px}
+.code-block pre::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
+
+.endpoint-doc{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;padding:18px;margin-bottom:12px
+}
+.endpoint-doc-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.method-tag{
+  padding:3px 8px;border-radius:5px;
+  font-size:.75rem;font-weight:800;font-family:'Geist Mono',monospace;
+  background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.25)
+}
+.endpoint-doc-path{font-family:'Geist Mono',monospace;font-size:.88rem;color:var(--text)}
+.endpoint-doc-desc{font-size:.83rem;color:var(--text2);line-height:1.55;margin-bottom:10px}
+.param-table{width:100%;border-collapse:collapse}
+.param-table th,.param-table td{padding:8px 12px;text-align:left;font-size:.8rem;border-bottom:1px solid var(--border)}
+.param-table th{color:var(--text3);font-weight:600;text-transform:uppercase;font-size:.72rem;letter-spacing:.06em}
+.param-table td{color:var(--text2);font-family:'Geist Mono',monospace}
+.param-table td:first-child{color:var(--primary)}
+.param-table td.desc{font-family:'Geist',sans-serif;color:var(--text2)}
+.optional-tag{font-size:.7rem;color:var(--text3);background:var(--bg4);padding:1px 5px;border-radius:4px;margin-left:4px;font-family:'Geist',sans-serif}
+.required-tag{font-size:.7rem;color:#f59e0b;background:rgba(245,158,11,.1);padding:1px 5px;border-radius:4px;margin-left:4px;font-family:'Geist',sans-serif}
+
+/* ─── STATS ─── */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+@media(max-width:540px){.stats-grid{grid-template-columns:1fr 1fr}}
+.stat-card{
+  background:var(--bg3);border:1px solid var(--border);border-radius:10px;
+  padding:16px;text-align:center
+}
+.stat-value{font-size:1.6rem;font-weight:800;color:var(--text);margin-bottom:4px}
+.stat-label{font-size:.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:.07em}
+
+/* ─── AUTH MODAL ─── */
+#auth-modal{
+  display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,.75);backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;padding:16px
+}
+#auth-modal.open{display:flex}
+.modal-box{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:14px;width:100%;max-width:380px;padding:28px;position:relative
+}
+.modal-close{
+  position:absolute;top:14px;right:14px;
+  width:28px;height:28px;border-radius:7px;border:none;
+  background:transparent;color:var(--text3);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .12s
+}
+.modal-close:hover{background:var(--bg3);color:var(--text2)}
+.modal-logo{font-size:.85rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:20px;color:var(--text3)}
+.modal-title{font-size:1.15rem;font-weight:700;margin-bottom:6px}
+.modal-sub{font-size:.83rem;color:var(--text2);margin-bottom:24px;line-height:1.5}
+.modal-tabs{display:flex;gap:4px;margin-bottom:20px}
+.modal-tab{
+  flex:1;padding:7px;border-radius:7px;border:none;
+  background:var(--bg3);color:var(--text3);cursor:pointer;
+  font-family:'Geist',sans-serif;font-size:.83rem;font-weight:500;transition:all .12s
+}
+.modal-tab.active{background:var(--bg4);color:var(--text)}
+.btn-full{
+  width:100%;padding:11px;border-radius:9px;border:none;
+  background:var(--primary);color:#fff;cursor:pointer;
+  font-family:'Geist',sans-serif;font-size:.9rem;font-weight:600;
+  transition:all .15s;margin-top:6px
+}
+.btn-full:hover{background:#3d7fef}
+.btn-full:disabled{background:var(--bg4);color:var(--text3);cursor:not-allowed}
+.modal-error{
+  font-size:.8rem;color:var(--red);
+  background:rgba(239,68,68,.08);padding:8px 12px;
+  border-radius:7px;margin-bottom:10px;display:none
+}
+.modal-error.show{display:block}
+.divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--text3);font-size:.8rem}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.google-btn{
+  width:100%;padding:10px;border-radius:9px;
+  border:1px solid var(--border2);background:var(--bg3);
+  color:var(--text2);cursor:pointer;font-family:'Geist',sans-serif;
+  font-size:.88rem;font-weight:500;transition:all .15s;
+  display:flex;align-items:center;justify-content:center;gap:8px
+}
+.google-btn:hover{background:var(--bg4);color:var(--text)}
+
+/* ─── TOAST ─── */
+#toast{
+  position:fixed;bottom:24px;right:24px;z-index:600;
+  background:var(--bg3);border:1px solid var(--border2);
+  padding:10px 16px;border-radius:9px;font-size:.85rem;
+  color:var(--text);box-shadow:0 8px 24px rgba(0,0,0,.4);
+  opacity:0;transform:translateY(8px);transition:all .2s;pointer-events:none
+}
+#toast.show{opacity:1;transform:translateY(0)}
+
+/* ─── MISC ─── */
+.section-title{font-size:1.25rem;font-weight:800;margin-bottom:4px}
+.section-desc{font-size:.88rem;color:var(--text2);margin-bottom:28px;line-height:1.55}
+hr.sep{border:none;border-top:1px solid var(--border);margin:24px 0}
+.tag-green{color:var(--green);font-size:.78rem;font-weight:600}
+.tag-yellow{color:var(--yellow);font-size:.78rem;font-weight:600}
+.tag-red{color:var(--red);font-size:.78rem;font-weight:600}
+.mono{font-family:'Geist Mono',monospace}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header id="topbar">
+  <div id="topbar-logo">CIQUAL <span>API</span> <span style="color:var(--text3);font-weight:400;font-size:.75rem">by Wikimind</span></div>
+  <div id="topbar-right">
+    <div id="user-badge">
+      <div id="user-avatar">?</div>
+      <span id="user-name-display"></span>
+      <button id="logout-btn" title="Déconnexion">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+    <button id="auth-btn">Connexion</button>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav id="nav">
+  <button class="nav-tab active" data-section="home">Accueil</button>
+  <button class="nav-tab" data-section="dashboard">Mes clés API</button>
+  <button class="nav-tab" data-section="playground">Playground</button>
+  <button class="nav-tab" data-section="docs">Documentation</button>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main id="main">
+
+  <!-- ═══ HOME ═══ -->
+  <div id="section-home" class="section active">
+    <div id="hero">
+      <h1>API Nutritionnelle<br><span>CIQUAL 2025</span></h1>
+      <p>Accédez à la base de données officielle de composition nutritionnelle des aliments via une API simple et gratuite.</p>
+      <div class="badge-row">
+        <span class="badge green">3 484 aliments</span>
+        <span class="badge">CIQUAL 2025</span>
+        <span class="badge yellow">Gratuit</span>
+        <span class="badge">Français</span>
+      </div>
+      <div class="hero-cta">
+        <button class="btn-primary" onclick="showSection('dashboard')">Créer une clé API</button>
+        <button class="btn-secondary" onclick="showSection('playground')">Tester l'API</button>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value">3 484</div>
+        <div class="stat-label">Aliments</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">12</div>
+        <div class="stat-label">Catégories</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">∞</div>
+        <div class="stat-label">Requêtes/jour</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Exemple rapide</h3>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">HTTP</span>
+          <button class="copy-code" onclick="copyCode(this)">Copier</button>
+        </div>
+        <pre>GET https://wikimindai.github.io/ciqual-api/data.json
+
+# Filtrer côté client par nom :
+const data = await fetch('https://wikimindai.github.io/ciqual-api/data.json');
+const aliments = await data.json();
+const pomme = aliments.filter(a =>
+  a.names.fr.toLowerCase().includes('pomme')
+);</pre>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <h3>Comment ça marche</h3>
+      <p style="font-size:.87rem;color:var(--text2);line-height:1.7;margin-bottom:12px">
+        L'API CIQUAL est hébergée statiquement sur GitHub Pages. Les données proviennent de la base <strong style="color:var(--text)">CIQUAL 2025</strong> de l'ANSES.
+        Vous récupérez le fichier JSON complet et filtrez côté client — aucun serveur requis.
+      </p>
+      <p style="font-size:.87rem;color:var(--text2);line-height:1.7">
+        La <strong style="color:var(--text)">clé API</strong> permet de s'identifier dans des futurs endpoints avancés
+        et de contribuer à la communauté Wikimind. Elle est stockée dans Firebase et vérifiée à chaque appel d'endpoint authentifié.
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══ DASHBOARD ═══ -->
+  <div id="section-dashboard" class="section">
+    <div class="section-title">Mes clés API</div>
+    <div class="section-desc">Créez et gérez vos clés pour accéder à l'API CIQUAL.</div>
+
+    <div id="dashboard-auth-wall" class="card" style="text-align:center;padding:48px">
+      <div style="font-size:2rem;margin-bottom:12px">🔑</div>
+      <p style="color:var(--text2);margin-bottom:20px;font-size:.92rem">Connectez-vous pour créer et gérer vos clés API.</p>
+      <button class="btn-primary" onclick="document.getElementById('auth-modal').classList.add('open')">Se connecter</button>
+    </div>
+
+    <div id="dashboard-content" style="display:none">
+      <!-- Keys list -->
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <h3 style="margin-bottom:0">Vos clés actives</h3>
+          <button class="btn-primary" id="show-create-btn" onclick="toggleCreateForm(true)">+ Créer une clé</button>
+        </div>
+        <div id="keys-list"><div class="no-keys">Aucune clé API. Créez-en une ci-dessous.</div></div>
+      </div>
+
+      <!-- Create key form -->
+      <div id="create-form" class="card" style="display:none">
+        <h3>Nouvelle clé API</h3>
+        <div class="form-row">
+          <label class="form-label">Nom de la clé</label>
+          <input id="key-name" class="form-input" type="text" placeholder="ex: Mon appli nutrition" maxlength="50">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Validité</label>
+          <select id="key-validity" class="form-input">
+            <option value="30">30 jours</option>
+            <option value="90" selected>90 jours</option>
+            <option value="180">180 jours</option>
+            <option value="365">1 an</option>
+            <option value="0">Sans expiration</option>
+          </select>
+        </div>
+
+        <div id="captcha-area">
+          <div id="captcha-question">Chargement du test anti-bot…</div>
+          <div class="captcha-options" id="captcha-options"></div>
+          <div id="captcha-status" style="font-size:.8rem;margin-top:10px"></div>
+        </div>
+
+        <div id="key-result">
+          <h4>✅ Clé créée avec succès !</h4>
+          <code id="key-result-value"></code>
+          <div id="key-expiry-note"></div>
+          <button class="btn-primary" id="copy-key-btn">Copier la clé</button>
+          <p style="font-size:.78rem;color:var(--text3);margin-top:10px">⚠️ Sauvegardez cette clé. Elle ne sera plus affichée en clair.</p>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:16px">
+          <button class="btn-primary" id="validate-key-btn" onclick="validateAndCreateKey()">Valider</button>
+          <button class="btn-secondary" onclick="toggleCreateForm(false)">Annuler</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PLAYGROUND ═══ -->
+  <div id="section-playground" class="section">
+    <div class="section-title">Playground</div>
+    <div class="section-desc">Testez l'API en direct. Aucune clé requise pour les endpoints publics.</div>
+
+    <div class="playground-row">
+      <div class="endpoint-list" id="endpoint-list">
+        <div class="endpoint-item active" data-endpoint="all">
+          <div class="endpoint-method">GET</div>
+          <div class="endpoint-path">/data.json</div>
+        </div>
+        <div class="endpoint-item" data-endpoint="search">
+          <div class="endpoint-method">GET</div>
+          <div class="endpoint-path">/data.json?search</div>
+        </div>
+        <div class="endpoint-item" data-endpoint="id">
+          <div class="endpoint-method">GET</div>
+          <div class="endpoint-path">/data.json?id</div>
+        </div>
+        <div class="endpoint-item" data-endpoint="category">
+          <div class="endpoint-method">GET</div>
+          <div class="endpoint-path">/data.json?category</div>
+        </div>
+        <div class="endpoint-item" data-endpoint="validate">
+          <div class="endpoint-method" style="color:var(--primary)">GET</div>
+          <div class="endpoint-path">/validate?api_key 🔒</div>
+        </div>
+      </div>
+
+      <div class="request-panel">
+        <div id="param-search-row" class="param-row" style="display:none">
+          <span class="param-label">search</span>
+          <input class="param-input" id="param-search" placeholder="ex: pomme" value="pomme">
+        </div>
+        <div id="param-id-row" class="param-row" style="display:none">
+          <span class="param-label">id</span>
+          <input class="param-input" id="param-id" placeholder="ex: 2001" value="2001">
+        </div>
+        <div id="param-category-row" class="param-row" style="display:none">
+          <span class="param-label">group_code</span>
+          <input class="param-input" id="param-category" placeholder="ex: 2" value="2">
+        </div>
+        <div id="param-apikey-row" class="param-row" style="display:none">
+          <span class="param-label">api_key</span>
+          <input class="param-input" id="param-apikey" placeholder="wm-fd12345678">
+        </div>
+        <div class="param-row">
+          <span class="param-label">limit</span>
+          <input class="param-input" id="param-limit" placeholder="ex: 10" value="5">
+        </div>
+
+        <button id="run-btn" onclick="runPlayground()">▶ Envoyer la requête</button>
+
+        <div>
+          <div class="response-meta" id="response-meta" style="display:none">
+            <span class="status-badge status-200" id="response-status">200 OK</span>
+            <span class="timing" id="response-time"></span>
+            <span class="timing" id="response-count"></span>
+          </div>
+          <div id="response-area">// La réponse apparaîtra ici…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DOCS ═══ -->
+  <div id="section-docs" class="section">
+    <div class="section-title">Documentation</div>
+    <div class="section-desc">Tout ce qu'il faut savoir pour intégrer l'API CIQUAL dans votre projet.</div>
+
+    <div class="doc-section">
+      <h2>Introduction</h2>
+      <p>L'API CIQUAL donne accès à la base de données officielle de composition nutritionnelle des aliments de l'<strong>ANSES</strong> (version 2025), comprenant <strong>3 484 aliments</strong>.</p>
+      <p>L'API est entièrement statique et hébergée sur GitHub Pages. Elle ne nécessite aucun serveur. Les données sont servies sous forme d'un fichier JSON unique que vous filtrez côté client.</p>
+
+      <div class="card" style="margin-top:16px">
+        <div style="display:flex;gap:24px;flex-wrap:wrap">
+          <div><div style="font-size:.75rem;color:var(--text3);margin-bottom:4px">BASE URL</div><code class="mono" style="font-size:.85rem;color:var(--primary)">https://wikimindai.github.io/ciqual-api</code></div>
+          <div><div style="font-size:.75rem;color:var(--text3);margin-bottom:4px">FORMAT</div><code class="mono" style="font-size:.85rem;color:var(--text2)">JSON</code></div>
+          <div><div style="font-size:.75rem;color:var(--text3);margin-bottom:4px">CORS</div><span style="font-size:.85rem;color:var(--green)">✓ Activé</span></div>
+          <div><div style="font-size:.75rem;color:var(--text3);margin-bottom:4px">AUTH</div><code class="mono" style="font-size:.85rem;color:var(--text2)">API Key (optionnel)</code></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="doc-section">
+      <h2>Authentification</h2>
+      <p>L'endpoint principal <code class="mono">/data.json</code> est <strong>public</strong> et ne nécessite aucune authentification.</p>
+      <p>Pour les endpoints avancés (futurs), une clé API est requise. Passez-la via le paramètre <code class="mono">api_key</code> :</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">URL</span><button class="copy-code" onclick="copyCode(this)">Copier</button></div>
+        <pre>https://wikimindai.github.io/ciqual-api/data.json?api_key=wm-fd12345678</pre>
+      </div>
+      <p>Les clés sont de la forme <code class="mono">wm-fd</code> suivi de <strong>8 chiffres aléatoires uniques</strong>. Elles sont stockées dans Firebase et vérifiables via l'endpoint <code class="mono">/validate</code>.</p>
+
+      <h3>Valider une clé API</h3>
+      <div class="endpoint-doc">
+        <div class="endpoint-doc-header">
+          <span class="method-tag">GET</span>
+          <span class="endpoint-doc-path">/validate?api_key={votre_clé}</span>
+        </div>
+        <p class="endpoint-doc-desc">Vérifie qu'une clé API existe et n'est pas expirée. Répond avec les métadonnées de la clé.</p>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang">Réponse 200</span></div>
+          <pre>{
+  "valid": true,
+  "key": "wm-fd12345678",
+  "name": "Mon appli",
+  "created_at": "2025-06-01T10:00:00Z",
+  "expires_at": "2025-09-01T10:00:00Z"
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="doc-section">
+      <h2>Endpoints</h2>
+
+      <div class="endpoint-doc">
+        <div class="endpoint-doc-header">
+          <span class="method-tag">GET</span>
+          <span class="endpoint-doc-path">/data.json</span>
+        </div>
+        <p class="endpoint-doc-desc">Retourne la totalité des 3 484 aliments de la base CIQUAL 2025.</p>
+        <h3 style="margin-top:0;margin-bottom:8px;font-size:.8rem;color:var(--text3)">PARAMÈTRES (côté client)</h3>
+        <p style="font-size:.83rem;color:var(--text2);margin-bottom:12px">Ce endpoint retourne le JSON brut. Filtrez les résultats côté client :</p>
+        <table class="param-table">
+          <thead><tr><th>Paramètre</th><th>Type</th><th class="desc">Description</th></tr></thead>
+          <tbody>
+            <tr><td>search<span class="optional-tag">optionnel</span></td><td>string</td><td class="desc">Filtre par nom (insensible à la casse)</td></tr>
+            <tr><td>id<span class="optional-tag">optionnel</span></td><td>string</td><td class="desc">Filtre par identifiant CIQUAL</td></tr>
+            <tr><td>group_code<span class="optional-tag">optionnel</span></td><td>string</td><td class="desc">Filtre par code de groupe (0–11)</td></tr>
+            <tr><td>limit<span class="optional-tag">optionnel</span></td><td>number</td><td class="desc">Nombre de résultats max</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="doc-section">
+      <h2>Structure des données</h2>
+      <p>Chaque aliment est un objet JSON avec la structure suivante :</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">JSON</span><button class="copy-code" onclick="copyCode(this)">Copier</button></div>
+        <pre>{
+  "id": "2001",
+  "names": {
+    "fr": "Pomme, pulpe et peau, crue"
+  },
+  "categories": {
+    "group_code": "2",
+    "group_name": "fruits, légumes, légumineuses et oléagineux",
+    "subgroup_code": "201",
+    "subgroup_name": "fruits"
+  },
+  "nutrition": {
+    "energy": { "kcal": 52, "kj": 218 },
+    "carbohydrates": { "total_g": 11.8, "sugars_g": 10.4 },
+    "fats": { "total_g": 0.2, "saturated_g": 0.03 }
+  },
+  "minerals": {
+    "calcium_mg": 6,
+    "iron_mg": 0.12,
+    "potassium_mg": 107
+  },
+  "vitamins": {
+    "vitamin_c_mg": 4.6,
+    "vitamin_b6_mg": 0.041
+  },
+  "source": "CIQUAL 2025",
+  "language": "fr"
+}</pre>
+      </div>
+
+      <h3>Codes de groupes</h3>
+      <table class="param-table">
+        <thead><tr><th>Code</th><th class="desc">Groupe</th></tr></thead>
+        <tbody>
+          <tr><td>0</td><td class="desc">Non classé</td></tr>
+          <tr><td>1</td><td class="desc">Entrées et plats composés</td></tr>
+          <tr><td>2</td><td class="desc">Fruits, légumes, légumineuses et oléagineux</td></tr>
+          <tr><td>3</td><td class="desc">Produits céréaliers</td></tr>
+          <tr><td>4</td><td class="desc">Viandes, œufs, poissons</td></tr>
+          <tr><td>5</td><td class="desc">Produits laitiers</td></tr>
+          <tr><td>6</td><td class="desc">Eaux et autres boissons</td></tr>
+          <tr><td>7</td><td class="desc">Produits sucrés</td></tr>
+          <tr><td>8</td><td class="desc">Glaces et sorbets</td></tr>
+          <tr><td>9</td><td class="desc">Matières grasses</td></tr>
+          <tr><td>10</td><td class="desc">Aides culinaires et ingrédients divers</td></tr>
+          <tr><td>11</td><td class="desc">Aliments infantiles</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="doc-section">
+      <h2>Exemples d'intégration</h2>
+
+      <h3>JavaScript (Fetch API)</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">JavaScript</span><button class="copy-code" onclick="copyCode(this)">Copier</button></div>
+        <pre>// Récupérer tous les aliments
+const res = await fetch('https://wikimindai.github.io/ciqual-api/data.json');
+const aliments = await res.json();
+
+// Rechercher par nom
+const results = aliments.filter(a =>
+  a.names.fr.toLowerCase().includes('pomme')
+);
+
+// Filtrer par catégorie (fruits = groupe 2)
+const fruits = aliments.filter(a =>
+  a.categories.group_code === '2'
+).slice(0, 10); // 10 premiers</pre>
+      </div>
+
+      <h3>Python</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">Python</span><button class="copy-code" onclick="copyCode(this)">Copier</button></div>
+        <pre>import requests
+
+url = "https://wikimindai.github.io/ciqual-api/data.json"
+aliments = requests.get(url).json()
+
+# Recherche par nom
+resultats = [
+    a for a in aliments
+    if 'pomme' in a['names']['fr'].lower()
+]
+print(f"{len(resultats)} résultats trouvés")
+for a in resultats[:3]:
+    print(f"• {a['names']['fr']} (id: {a['id']})")</pre>
+      </div>
+
+      <h3>Avec authentification API</h3>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">JavaScript</span><button class="copy-code" onclick="copyCode(this)">Copier</button></div>
+        <pre>const API_KEY = 'wm-fd12345678'; // Votre clé
+
+// Valider la clé avant d'appeler
+async function validateKey(key) {
+  const db = firebase.database();
+  const snap = await db.ref(`api_keys/${key}`).once('value');
+  return snap.exists() && !snap.val().expired;
+}
+
+// Appel sécurisé
+const isValid = await validateKey(API_KEY);
+if (isValid) {
+  const data = await fetch(
+    `https://wikimindai.github.io/ciqual-api/data.json`
+  ).then(r => r.json());
+  // Traitement...
+}</pre>
+      </div>
+    </div>
+
+    <div class="doc-section">
+      <h2>Limites & Quota</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div class="card" style="margin-bottom:0">
+          <div style="font-size:.75rem;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.07em">Sans clé API</div>
+          <div style="font-size:1.4rem;font-weight:800;color:var(--green)">∞</div>
+          <div style="font-size:.8rem;color:var(--text2);margin-top:4px">Requêtes illimitées sur <code class="mono" style="font-size:.78rem">/data.json</code> (GitHub Pages)</div>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <div style="font-size:.75rem;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.07em">Avec clé API</div>
+          <div style="font-size:1.4rem;font-weight:800;color:var(--primary)">∞</div>
+          <div style="font-size:.8rem;color:var(--text2);margin-top:4px">Accès aux futurs endpoints avancés</div>
+        </div>
+      </div>
+      <p style="font-size:.85rem;color:var(--text3);line-height:1.65">Les données étant statiques (GitHub Pages), il n'y a pas de limite de requêtes. La clé API sert principalement d'identification pour les services futurs et les intégrations avancées.</p>
+    </div>
+  </div>
+
+</main>
+
+<!-- AUTH MODAL -->
+<div id="auth-modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="document.getElementById('auth-modal').classList.remove('open')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-logo">CIQUAL API</div>
+    <div class="modal-title">Bienvenue</div>
+    <div class="modal-sub">Connectez-vous pour créer et gérer vos clés API.</div>
+
+    <div class="modal-tabs">
+      <button class="modal-tab active" id="tab-login" onclick="switchAuthTab('login')">Connexion</button>
+      <button class="modal-tab" id="tab-signup" onclick="switchAuthTab('signup')">Inscription</button>
+    </div>
+
+    <div id="auth-error" class="modal-error"></div>
+
+    <div id="login-form">
+      <div class="form-row">
+        <label class="form-label">Email</label>
+        <input id="login-email" class="form-input" type="email" placeholder="vous@exemple.com">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Mot de passe</label>
+        <input id="login-password" class="form-input" type="password" placeholder="••••••••">
+      </div>
+      <button class="btn-full" id="login-btn" onclick="doLogin()">Se connecter</button>
+    </div>
+
+    <div id="signup-form" style="display:none">
+      <div class="form-row">
+        <label class="form-label">Pseudo</label>
+        <input id="signup-name" class="form-input" type="text" placeholder="VotreNom">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Email</label>
+        <input id="signup-email" class="form-input" type="email" placeholder="vous@exemple.com">
+      </div>
+      <div class="form-row">
+        <label class="form-label">Mot de passe</label>
+        <input id="signup-password" class="form-input" type="password" placeholder="Min. 6 caractères">
+      </div>
+      <button class="btn-full" id="signup-btn" onclick="doSignup()">Créer mon compte</button>
+    </div>
+
+    <div class="divider">ou</div>
+    <button class="google-btn" onclick="doGoogleLogin()">
+      <svg width="16" height="16" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      Continuer avec Google
+    </button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- FIREBASE + APP SCRIPT -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB5BwEC69LUaPGtmLz4fuuD_jPXpB7B7mE",
+  authDomain: "wikimind-food-api.firebaseapp.com",
+  databaseURL: "https://wikimind-food-api-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "wikimind-food-api",
+  storageBucket: "wikimind-food-api.firebasestorage.app",
+  messagingSenderId: "1045464204780",
+  appId: "1:1045464204780:web:c17ed616c161a5482c2cc9",
+  measurementId: "G-W2F98GE2PS"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
+
+// ── State ──
+let currentUser = null;
+let userKeys = [];
+let captchaAnswer = null;
+let captchaPassed = false;
+let cachedData = null;
+
+// ── Auth state ──
+onAuthStateChanged(auth, user => {
+  currentUser = user;
+  if (user) {
+    document.getElementById('auth-btn').style.display = 'none';
+    const badge = document.getElementById('user-badge');
+    badge.style.display = 'flex';
+    const initials = (user.displayName || user.email || '?')[0].toUpperCase();
+    document.getElementById('user-avatar').textContent = initials;
+    document.getElementById('user-name-display').textContent = user.displayName || user.email.split('@')[0];
+    document.getElementById('auth-modal').classList.remove('open');
+    document.getElementById('dashboard-auth-wall').style.display = 'none';
+    document.getElementById('dashboard-content').style.display = 'block';
+    loadUserKeys();
+  } else {
+    document.getElementById('auth-btn').style.display = '';
+    document.getElementById('user-badge').style.display = 'none';
+    document.getElementById('dashboard-auth-wall').style.display = '';
+    document.getElementById('dashboard-content').style.display = 'none';
+  }
+});
+
+// ── AUTH ACTIONS ──
+window.doLogin = async () => {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-password').value;
+  const btn = document.getElementById('login-btn');
+  if (!email || !pass) return showAuthError('Remplissez tous les champs.');
+  btn.disabled = true; btn.textContent = 'Connexion…';
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+    showToast('Connecté !');
+  } catch(e) {
+    showAuthError(firebaseErrorMsg(e.code));
+  } finally { btn.disabled = false; btn.textContent = 'Se connecter'; }
+};
+
+window.doSignup = async () => {
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const pass = document.getElementById('signup-password').value;
+  const btn = document.getElementById('signup-btn');
+  if (!name || !email || !pass) return showAuthError('Remplissez tous les champs.');
+  if (pass.length < 6) return showAuthError('Mot de passe : 6 caractères minimum.');
+  btn.disabled = true; btn.textContent = 'Création…';
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    await updateProfile(cred.user, { displayName: name });
+    showToast('Compte créé !');
+  } catch(e) {
+    showAuthError(firebaseErrorMsg(e.code));
+  } finally { btn.disabled = false; btn.textContent = 'Créer mon compte'; }
+};
+
+window.doGoogleLogin = async () => {
+  try {
+    await signInWithPopup(auth, googleProvider);
+    showToast('Connecté avec Google !');
+  } catch(e) {
+    showAuthError('Connexion Google échouée. Réessayez.');
+  }
+};
+
+document.getElementById('logout-btn').addEventListener('click', async () => {
+  await signOut(auth);
+  showToast('Déconnecté.');
+});
+
+// ── KEYS ──
+async function loadUserKeys() {
+  if (!currentUser) return;
+  const snap = await get(ref(db, `users/${currentUser.uid}/api_keys`));
+  userKeys = [];
+  if (snap.exists()) {
+    snap.forEach(child => {
+      userKeys.push({ key: child.key, ...child.val() });
+    });
+  }
+  renderKeys();
+}
+
+function renderKeys() {
+  const container = document.getElementById('keys-list');
+  if (!userKeys.length) {
+    container.innerHTML = '<div class="no-keys">Aucune clé API. Créez-en une ci-dessous.</div>';
+    return;
+  }
+  container.innerHTML = userKeys.map(k => {
+    const now = Date.now();
+    const expired = k.expires_at && k.expires_at < now;
+    const expiresStr = k.expires_at
+      ? (expired ? '<span class="tag-red">Expirée</span>' : `<span class="tag-green">Expire le ${new Date(k.expires_at).toLocaleDateString('fr-FR')}</span>`)
+      : '<span class="tag-green">Sans expiration</span>';
+    return `<div class="api-key-item">
+      <div class="api-key-info">
+        <div class="api-key-name">${escHtml(k.name || 'Sans nom')}</div>
+        <div class="api-key-meta">${expiresStr} · Créée le ${new Date(k.created_at).toLocaleDateString('fr-FR')}</div>
+      </div>
+      <div class="api-key-value">${k.key.slice(0,8)}••••</div>
+      <div class="api-key-actions">
+        <button class="icon-btn" title="Copier" onclick="copyApiKey('${k.key}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+        <button class="icon-btn danger" title="Supprimer" onclick="deleteKey('${k.key}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.copyApiKey = (key) => { navigator.clipboard.writeText(key); showToast('Clé copiée !'); };
+
+window.deleteKey = async (key) => {
+  if (!confirm('Supprimer cette clé API ?')) return;
+  await remove(ref(db, `users/${currentUser.uid}/api_keys/${key}`));
+  await remove(ref(db, `api_keys/${key}`));
+  userKeys = userKeys.filter(k => k.key !== key);
+  renderKeys();
+  showToast('Clé supprimée.');
+};
+
+// ── CREATE KEY ──
+window.toggleCreateForm = (show) => {
+  document.getElementById('create-form').style.display = show ? 'block' : 'none';
+  document.getElementById('show-create-btn').style.display = show ? 'none' : '';
+  if (show) {
+    loadCaptcha();
+    document.getElementById('key-result').style.display = 'none';
+    captchaPassed = false;
+    document.getElementById('key-name').value = '';
+  }
+};
+
+// ─── CAPTCHA ENGINE ───
+const CAPTCHAS = [
+  { q: 'Combien font 7 × 8 ?', a: '56', opts: ['42', '56', '64', '48'] },
+  { q: 'Quelle est la capitale de la France ?', a: 'Paris', opts: ['Lyon', 'Marseille', 'Paris', 'Nice'] },
+  { q: 'Combien font 15 − 9 ?', a: '6', opts: ['4', '5', '6', '7'] },
+  { q: 'Quel animal fait "Meuh" ?', a: 'La vache', opts: ['Le chat', 'Le chien', 'La vache', 'Le mouton'] },
+  { q: 'Combien de jours dans une semaine ?', a: '7', opts: ['5', '6', '7', '8'] },
+  { q: 'Quelle couleur obtient-on en mélangeant bleu et jaune ?', a: 'Vert', opts: ['Rouge', 'Orange', 'Violet', 'Vert'] },
+  { q: 'Combien font 3² ?', a: '9', opts: ['6', '8', '9', '12'] },
+  { q: 'Quel est le plus grand continent ?', a: 'Asie', opts: ['Afrique', 'Asie', 'Europe', 'Amérique'] },
+  { q: 'Combien font 100 ÷ 4 ?', a: '25', opts: ['20', '24', '25', '30'] },
+  { q: 'En quelle saison tombent les feuilles ?', a: 'Automne', opts: ['Printemps', 'Été', 'Automne', 'Hiver'] },
+];
+
+function loadCaptcha() {
+  const c = CAPTCHAS[Math.floor(Math.random() * CAPTCHAS.length)];
+  captchaAnswer = c.a;
+  captchaPassed = false;
+  document.getElementById('captcha-question').textContent = c.q;
+  const opts = document.getElementById('captcha-options');
+  opts.innerHTML = c.opts.map(o =>
+    `<button class="captcha-opt" onclick="checkCaptcha(this,'${o.replace(/'/g,"\\'")}','${c.a.replace(/'/g,"\\'")}')">
+      ${escHtml(o)}
+    </button>`
+  ).join('');
+  document.getElementById('captcha-status').textContent = '';
+  document.getElementById('captcha-status').style.color = '';
+}
+
+window.checkCaptcha = (btn, answer, correct) => {
+  document.querySelectorAll('.captcha-opt').forEach(b => {
+    b.classList.remove('selected','correct','wrong');
+    b.disabled = true;
+  });
+  if (answer === correct) {
+    btn.classList.add('correct');
+    captchaPassed = true;
+    document.getElementById('captcha-status').textContent = '✓ Vérifié !';
+    document.getElementById('captcha-status').style.color = 'var(--green)';
+  } else {
+    btn.classList.add('wrong');
+    captchaPassed = false;
+    document.getElementById('captcha-status').textContent = '✗ Mauvaise réponse. Rechargement…';
+    document.getElementById('captcha-status').style.color = 'var(--red)';
+    setTimeout(loadCaptcha, 1400);
+  }
+};
+
+window.validateAndCreateKey = async () => {
+  if (!currentUser) return showToast('Connectez-vous d\'abord.');
+  const name = document.getElementById('key-name').value.trim();
+  if (!name) return showToast('Donnez un nom à votre clé.');
+  if (!captchaPassed) return showToast('Complétez le test anti-bot.');
+
+  const validity = parseInt(document.getElementById('key-validity').value);
+  const btn = document.getElementById('validate-key-btn');
+  btn.disabled = true; btn.textContent = 'Génération…';
+
+  try {
+    // Generate unique key
+    let newKey, exists = true;
+    let attempts = 0;
+    while (exists && attempts < 20) {
+      const digits = Array.from({length: 8}, () => Math.floor(Math.random() * 10)).join('');
+      newKey = `wm-fd${digits}`;
+      const snap = await get(ref(db, `api_keys/${newKey}`));
+      exists = snap.exists();
+      attempts++;
+    }
+
+    const now = Date.now();
+    const expires_at = validity > 0 ? now + validity * 86400000 : null;
+    const keyData = {
+      name,
+      owner_uid: currentUser.uid,
+      owner_email: currentUser.email,
+      created_at: now,
+      expires_at,
+      active: true
+    };
+
+    // Save globally (for validation)
+    await set(ref(db, `api_keys/${newKey}`), keyData);
+    // Save per-user
+    await set(ref(db, `users/${currentUser.uid}/api_keys/${newKey}`), keyData);
+
+    // Show result
+    document.getElementById('key-result').style.display = 'block';
+    document.getElementById('key-result-value').textContent = newKey;
+    document.getElementById('key-expiry-note').textContent = expires_at
+      ? `Expire le ${new Date(expires_at).toLocaleDateString('fr-FR')}`
+      : 'Sans expiration';
+
+    document.getElementById('copy-key-btn').onclick = () => {
+      navigator.clipboard.writeText(newKey);
+      showToast('Clé copiée !');
+    };
+
+    // Hide form controls
+    document.getElementById('validate-key-btn').style.display = 'none';
+    document.querySelectorAll('#create-form .btn-secondary')[0].textContent = 'Fermer';
+    document.querySelectorAll('#create-form .btn-secondary')[0].onclick = () => {
+      toggleCreateForm(false);
+      loadUserKeys();
+    };
+
+    showToast('Clé créée avec succès !');
+  } catch(e) {
+    showToast('Erreur lors de la création. Réessayez.');
+    console.error(e);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Valider';
+  }
+};
+
+// ── PLAYGROUND ──
+let currentEndpoint = 'all';
+
+document.querySelectorAll('.endpoint-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.endpoint-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    currentEndpoint = item.dataset.endpoint;
+    updateParamVisibility();
+    document.getElementById('response-meta').style.display = 'none';
+    document.getElementById('response-area').textContent = '// La réponse apparaîtra ici…';
+  });
+});
+
+function updateParamVisibility() {
+  document.getElementById('param-search-row').style.display = currentEndpoint === 'search' ? '' : 'none';
+  document.getElementById('param-id-row').style.display = currentEndpoint === 'id' ? '' : 'none';
+  document.getElementById('param-category-row').style.display = currentEndpoint === 'category' ? '' : 'none';
+  document.getElementById('param-apikey-row').style.display = currentEndpoint === 'validate' ? '' : 'none';
+}
+updateParamVisibility();
+
+window.runPlayground = async () => {
+  const btn = document.getElementById('run-btn');
+  btn.disabled = true; btn.textContent = '⏳ Envoi…';
+  const t0 = Date.now();
+
+  try {
+    const limit = parseInt(document.getElementById('param-limit').value) || 5;
+
+    if (currentEndpoint === 'validate') {
+      // Firebase validation
+      const apiKey = document.getElementById('param-apikey').value.trim();
+      if (!apiKey) { showResponse({ error: 'api_key manquant' }, 400, Date.now()-t0, 0); return; }
+      const snap = await get(ref(db, `api_keys/${apiKey}`));
+      if (!snap.exists()) {
+        showResponse({ valid: false, error: 'Clé API introuvable' }, 401, Date.now()-t0, 0);
+      } else {
+        const d = snap.val();
+        const now = Date.now();
+        const expired = d.expires_at && d.expires_at < now;
+        if (expired) {
+          showResponse({ valid: false, error: 'Clé expirée', expired_at: d.expires_at }, 401, Date.now()-t0, 0);
+        } else {
+          showResponse({
+            valid: true,
+            key: apiKey,
+            name: d.name,
+            created_at: new Date(d.created_at).toISOString(),
+            expires_at: d.expires_at ? new Date(d.expires_at).toISOString() : null
+          }, 200, Date.now()-t0, 1);
+        }
+      }
+      return;
+    }
+
+    // Load data
+    if (!cachedData) {
+      document.getElementById('response-area').textContent = '// Chargement des données…';
+      const res = await fetch('./data.json');
+      cachedData = await res.json();
+    }
+
+    let results = [...cachedData];
+
+    if (currentEndpoint === 'search') {
+      const q = document.getElementById('param-search').value.toLowerCase().trim();
+      if (q) results = results.filter(a => a.names?.fr?.toLowerCase().includes(q));
+    } else if (currentEndpoint === 'id') {
+      const id = document.getElementById('param-id').value.trim();
+      results = results.filter(a => a.id === id);
+    } else if (currentEndpoint === 'category') {
+      const cat = document.getElementById('param-category').value.trim();
+      results = results.filter(a => a.categories?.group_code === cat);
+    }
+
+    const total = results.length;
+    results = results.slice(0, limit);
+    showResponse({ count: total, returned: results.length, data: results }, 200, Date.now()-t0, total);
+
+  } catch(e) {
+    showResponse({ error: e.message }, 500, Date.now()-t0, 0);
+  } finally {
+    btn.disabled = false; btn.textContent = '▶ Envoyer la requête';
+  }
+};
+
+function showResponse(data, status, ms, count) {
+  const meta = document.getElementById('response-meta');
+  meta.style.display = 'flex';
+  const badge = document.getElementById('response-status');
+  badge.textContent = status === 200 ? '200 OK' : `${status} Error`;
+  badge.className = 'status-badge ' + (status === 200 ? 'status-200' : 'status-err');
+  document.getElementById('response-time').textContent = `${ms}ms`;
+  document.getElementById('response-count').textContent = count > 0 ? `${count} résultat${count>1?'s':''}` : '';
+  document.getElementById('response-area').textContent = JSON.stringify(data, null, 2);
+}
+
+// ── UTILS ──
+window.showSection = (id) => {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`section-${id}`)?.classList.add('active');
+  document.querySelector(`[data-section="${id}"]`)?.classList.add('active');
+};
+
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => showSection(tab.dataset.section));
+});
+
+window.switchAuthTab = (tab) => {
+  document.getElementById('login-form').style.display = tab === 'login' ? '' : 'none';
+  document.getElementById('signup-form').style.display = tab === 'signup' ? '' : 'none';
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+  document.getElementById('auth-error').classList.remove('show');
+};
+
+function showAuthError(msg) {
+  const el = document.getElementById('auth-error');
+  el.textContent = msg; el.classList.add('show');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._to);
+  t._to = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+window.copyCode = (btn) => {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.textContent);
+  btn.textContent = 'Copié !';
+  setTimeout(() => btn.textContent = 'Copier', 1800);
+};
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function firebaseErrorMsg(code) {
+  const m = {
+    'auth/user-not-found': 'Aucun compte avec cet email.',
+    'auth/wrong-password': 'Mot de passe incorrect.',
+    'auth/email-already-in-use': 'Cet email est déjà utilisé.',
+    'auth/invalid-email': 'Email invalide.',
+    'auth/weak-password': 'Mot de passe trop faible.',
+    'auth/too-many-requests': 'Trop de tentatives. Réessayez plus tard.',
+    'auth/invalid-credential': 'Email ou mot de passe incorrect.',
+  };
+  return m[code] || 'Erreur. Réessayez.';
+}
+</script>
+</body>
+</html>
